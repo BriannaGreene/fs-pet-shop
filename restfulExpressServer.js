@@ -43,27 +43,28 @@ app.post('/pets', function(req, res) {
   fs.readFile(petsPath, 'utf8', function(err, petsJSON) {
     if (err) {
       throw err
+      res.sendStatus(400)
     }
     const pets = JSON.parse(petsJSON)
-    let petName = req.body.name
+    let newPet = req.body
 
-    if(!petName) {
-      return res.sendStatus(404)
+    if(!newPet) {
+      return res.sendStatus(400)
     }
 
-    pets.push(petName)
+    pets.push(newPet)
 
     let newPetJSON = JSON.stringify(pets)
 
     fs.writeFile(petsPath, newPetJSON, function(err) {
       if (err) {
-        res.sendStatus(500)
+        res.sendStatus(400)
       }
-      console.log(petName)
-      res.send(petName)
+      res.send(newPet)
     })
   })
 })
+
 
 app.use((req, res) => {
   res.sendStatus(404)

@@ -1,6 +1,7 @@
 const http = require('http')
 const port = process.env.PORT || 8000
 const sourceFile = require('./pets.json')
+console.log(sourceFile)
 
 const server = http.createServer(function(req, res) {
   if (req.method === 'GET' && req.url === '/pets') {

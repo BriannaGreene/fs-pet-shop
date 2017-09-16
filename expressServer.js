@@ -1,40 +1,37 @@
+'use stric'
 const express = require('express')
+const path = require('path')
+let fs = require('fs')
+
 const app = express()
-const sourceFile = require('./pets.json')
+const petsPath = path.join(__dirname, 'pets.json')
+const port = process.env.PORT || 8000
 
-app.get('/pets', function(req, res, next) {
-  res.statusCode = 200
-  res.setHeader('Content-Type', 'application/json')
-  res.end(JSON.stringify(sourceFile))
+app.disable('x-powered-by')
+app.get('/pets', (req, res, next) => {
+  fs.readFile(petsPath, 'utf8', (err, petsJSON) => {
+    if (err) throw err
+    const pets = JSON.parse(petsJSON)
+    res.send(pets)
+  })
 })
 
-app.get('/pets/0', function(req, res, next) {
-  res.statusCode = 200
-  res.setHeader('Content-Type', 'application/json')
-  res.end(JSON.stringify(sourceFile[0]))
+app.get('/pets/:id', (req, res, next) => {
+  fs.readFile(petsPath, 'utf8', (err, petsJSON) => {
+    if (err) throw err
+    let idx = Number(req.params.id)
+    const pets = JSON.parse(petsJSON)
+    if (idx < 0 || idx > pets.length - 1 || isNaN(idx)) {
+      res.sendStatus(404)
+    }
+    res.send(pets[idx])
+  })
 })
 
-app.get('/pets/1', function(req, res, next) {
-  res.statusCode = 200
-  res.setHeader('Content-Type', 'application/json')
-  res.end(JSON.stringify(sourceFile[1]))
+app.use((req, res) => {
+  res.sendStatus(404)
 })
-
-app.get('/pets/2', function(req, res, next) {
-  res.statusCode = 404
-  res.setHeader('Content-Type', 'text/plain')
-  res.end('Not Found')
+app.listen(port, () => {
+  console.log('Listening on port', port)
 })
-
-app.get('/pets/-1', function(req, res, next) {
-  res.statusCode = 404
-  res.setHeader('Content-Type', 'text/plain')
-  res.end('Not Found')
-})
-
-app.listen(8000, function() {
-  console.log('Listening on port 8000')
-})
-
-
-module.exports = app;
+module.exports = app
